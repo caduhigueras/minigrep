@@ -1,4 +1,4 @@
-use std::env;
+use std::{env, fs};
 
 fn main() {
     // NOTE: if the program needs support invalid unicode use std::env::args_os
@@ -11,4 +11,8 @@ fn main() {
 
     // println!("Searching for {}", query);
     // println!("In file {}", file_path);
+
+    let contents = fs::read_to_string(file_path).expect("Should have been able to read the file");
+
+    println!("With text:\n{contents}");
 }
