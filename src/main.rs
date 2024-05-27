@@ -11,9 +11,6 @@ fn main() {
         process::exit(1);
     });
 
-    println!("query: {}", config.query);
-    println!("File: {}", config.file_path);
-
     // NOTE: not using unwrap_or_else in this case since OK() does not return a value we want to
     // unwrap (Like config returns Config). Here we only need to handle when an error occurs.
     if let Err(e) = minigrep::run(config) {
