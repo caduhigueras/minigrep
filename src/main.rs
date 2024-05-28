@@ -7,14 +7,14 @@ fn main() {
     let args: Vec<String> = env::args().collect();
 
     let config = Config::build(&args).unwrap_or_else(|err| {
-        println!("Problem parasing arguments: {err}");
+        eprintln!("Problem parasing arguments: {err}");
         process::exit(1);
     });
 
     // NOTE: not using unwrap_or_else in this case since OK() does not return a value we want to
     // unwrap (Like config returns Config). Here we only need to handle when an error occurs.
     if let Err(e) = minigrep::run(config) {
-        println!("Application error: {e}");
+        eprintln!("Application error: {e}");
         process::exit(1);
     }
 }
