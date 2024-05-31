@@ -8,18 +8,18 @@ pub struct Config {
 }
 
 impl Config {
-    // NOTE: using clone makes a copy of the full data we are using inside Config.
-    // This takes more time and memory than storing a reference, but making it like this makes the
-    // code more straightforward and remove the necessity of handling lifetimes.
-    // In this particular case, giving up a little performance is worth it
-    pub fn build(args: &[String]) -> Result<Config, &'static str> {
-        if args.len() < 3 {
-            return Err(
-                "You should provide at least 2 arguments. \nExample: cargo run -- query file_path",
-            );
-        }
-        let query = args[1].clone();
-        let file_path = args[2].clone();
+    pub fn build(mut args: impl Iterator<Item = String>) -> Result<Config, &'static str> {
+        args.next();
+
+        let query = match args.next() {
+            Some(arg) => arg,
+            None => return Err("Didn't get a query string"),
+        };
+
+        let file_path = match args.next() {
+            Some(arg) => arg,
+            None => return Err("Didn't get a file_path"),
+        };
 
         let ignore_case = env::var("IGNORE_CASE").is_ok();
 
@@ -49,29 +49,43 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
+// pub fn search<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {
+//     let mut results = Vec::new();
+//
+//     for line in contents.lines() {
+//         if line.contains(query) {
+//             results.push(line);
+//         }
+//     }
+//
+//     results
+// }
+
 pub fn search<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {
-    let mut results = Vec::new();
-
-    for line in contents.lines() {
-        if line.contains(query) {
-            results.push(line);
-        }
-    }
-
-    results
+    contents
+        .lines()
+        .filter(|line| line.contains(query))
+        .collect()
 }
 
+// pub fn search_case_insensitive<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {
+//     let query = query.to_lowercase();
+//     let mut results = Vec::new();
+//
+//     for line in contents.lines() {
+//         if line.to_lowercase().contains(&query) {
+//             results.push(line)
+//         }
+//     }
+//
+//     results
+// }
+
 pub fn search_case_insensitive<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {
-    let query = query.to_lowercase();
-    let mut results = Vec::new();
-
-    for line in contents.lines() {
-        if line.to_lowercase().contains(&query) {
-            results.push(line)
-        }
-    }
-
-    results
+    contents
+        .lines()
+        .filter(|line| line.to_lowercase().contains(&query.to_lowercase()))
+        .collect()
 }
 
 #[cfg(test)]
